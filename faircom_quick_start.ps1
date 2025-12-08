@@ -1,0 +1,130 @@
+# Launch FairCom Edge Docker container
+# Usage: .\faircom_quick_start.ps1 [start|stop|restart|logs|sample-data]
+
+param(
+    [Parameter(Position=0)]
+    [ValidateSet('start', 'stop', 'restart', 'logs', 'sample-data', 'help')]
+    [string]$Command = 'start'
+)
+
+$ErrorActionPreference = 'Stop'
+
+$CONTAINER_NAME = "faircom-edge"
+$IMAGE = "toddstoffel0810/faircom:latest"
+
+# Ports
+$PORT_HTTP = "8080"
+$PORT_MQTT_WS = "9001"
+$PORT_MQTT = "1883"
+$PORT_DB = "6597"
+
+function Start-Container {
+    Write-Host "Starting FairCom Edge container..." -ForegroundColor Cyan
+    
+    # Check if container already exists
+    $existingContainer = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
+    if ($existingContainer) {
+        Write-Host "Container '$CONTAINER_NAME' already exists. Use 'restart' to restart it." -ForegroundColor Yellow
+        exit 1
+    }
+    
+    docker run -d `
+        --name $CONTAINER_NAME `
+        -p "${PORT_HTTP}:8080" `
+        -p "${PORT_MQTT_WS}:9001" `
+        -p "${PORT_MQTT}:1883" `
+        -p "${PORT_DB}:6597" `
+        --restart unless-stopped `
+        $IMAGE
+    
+    Write-Host ""
+    Write-Host "✅ FairCom Edge started successfully!" -ForegroundColor Green
+    Write-Host ""
+    Write-Host "Web Interface:     http://localhost:$PORT_HTTP"
+    Write-Host "REST API:          http://localhost:$PORT_HTTP/api"
+    Write-Host "SQL Connection:    localhost:$PORT_DB"
+    Write-Host ""
+    Write-Host "Default credentials: ADMIN/ADMIN"
+    Write-Host ""
+}
+
+function Stop-Container {
+    Write-Host "Stopping FairCom Edge container..." -ForegroundColor Cyan
+    
+    try {
+        docker stop $CONTAINER_NAME 2>$null
+        docker rm $CONTAINER_NAME 2>$null
+        Write-Host "✅ Container stopped and removed." -ForegroundColor Green
+    }
+    catch {
+        Write-Host "Container '$CONTAINER_NAME' is not running." -ForegroundColor Yellow
+        exit 1
+    }
+}
+
+function Restart-Container {
+    Write-Host "Restarting FairCom Edge container..." -ForegroundColor Cyan
+    Stop-Container
+    Start-Container
+}
+
+function Show-Logs {
+    docker logs -f $CONTAINER_NAME
+}
+
+function Create-SampleData {
+    Write-Host "Creating sample data..." -ForegroundColor Cyan
+    Write-Host ""
+    
+    # Check if container is running
+    $runningContainer = docker ps --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
+    if (-not $runningContainer) {
+        Write-Host "❌ Error: Container '$CONTAINER_NAME' is not running." -ForegroundColor Red
+        Write-Host "Please start the container first with: .\faircom_quick_start.ps1 start"
+        exit 1
+    }
+    
+    # Run the Python script inside the container
+    docker exec -w /opt/faircom/server $CONTAINER_NAME python3 /usr/local/bin/create_sample_data.py
+}
+
+function Show-Usage {
+    Write-Host "Usage: .\faircom_quick_start.ps1 [start|stop|restart|logs|sample-data]"
+    Write-Host ""
+    Write-Host "Commands:"
+    Write-Host "  start        - Start the FairCom Edge container"
+    Write-Host "  stop         - Stop and remove the container"
+    Write-Host "  restart      - Restart the container"
+    Write-Host "  logs         - Show container logs (follow mode)"
+    Write-Host "  sample-data  - Create sample database with demo data"
+    Write-Host ""
+    Write-Host "If no command is provided, 'start' is assumed."
+}
+
+# Main execution
+switch ($Command) {
+    'start' {
+        Start-Container
+    }
+    'stop' {
+        Stop-Container
+    }
+    'restart' {
+        Restart-Container
+    }
+    'logs' {
+        Show-Logs
+    }
+    'sample-data' {
+        Create-SampleData
+    }
+    'help' {
+        Show-Usage
+    }
+    default {
+        Write-Host "Error: Unknown command '$Command'" -ForegroundColor Red
+        Write-Host ""
+        Show-Usage
+        exit 1
+    }
+}

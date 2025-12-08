@@ -20,7 +20,19 @@ Minimal Docker image for FairCom Edge database (~350MB) configured for easy depl
 - Verify installation: `docker --version`
 - Ensure Docker daemon is running before proceeding
 
+### Platform-Specific Notes
+
+**Windows Users**: You have several options:
+- **Recommended**: Use **PowerShell** scripts (`.ps1` files provided alongside `.sh` scripts)
+- Use **WSL2** (Windows Subsystem for Linux) to run bash scripts
+- Use **Git Bash** to run bash scripts
+- Use **Docker commands directly** (shown in Alternative Methods section)
+
+**macOS/Linux Users**: Use the provided bash scripts (`.sh` files)
+
 ## Quick Start
+
+### macOS/Linux
 
 The easiest way to get started is with this one-liner:
 
@@ -34,13 +46,7 @@ Or if you've cloned the repository, run the script directly:
 ./faircom_quick_start.sh
 ```
 
-This will:
-
-- Pull the latest image from Docker Hub
-- Start the container with all required ports
-- Display access information
-
-### Available Commands
+#### Available Commands (macOS/Linux)
 
 ```bash
 ./faircom_quick_start.sh start    # Start the container (default)
@@ -48,6 +54,34 @@ This will:
 ./faircom_quick_start.sh restart  # Restart the container
 ./faircom_quick_start.sh logs     # View container logs
 ```
+
+### Windows (PowerShell)
+
+If you've cloned the repository, run the PowerShell script:
+
+```powershell
+.\faircom_quick_start.ps1
+```
+
+#### Available Commands (Windows PowerShell)
+
+```powershell
+.\faircom_quick_start.ps1 start    # Start the container (default)
+.\faircom_quick_start.ps1 stop     # Stop and remove the container
+.\faircom_quick_start.ps1 restart  # Restart the container
+.\faircom_quick_start.ps1 logs     # View container logs
+```
+
+**Note**: You may need to enable script execution in PowerShell:
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+### What the Quick Start Does
+
+- Pull the latest image from Docker Hub
+- Start the container with all required ports
+- Display access information
 
 ## Alternative Methods
 
