@@ -12,7 +12,7 @@ Multi-architecture Docker image for <a href="https://www.faircom.com/products/fa
 FairCom Edge is an IoT hub designed to run on the edge, from factory floors to warehouses to wind farms. It combines a database, MQTT broker, IoT connector, and transformation engine in a single platform so you can collect, process, and deliver machine data without stitching together separate tools.
 
 <p align="center">
-  <img src="https://cdn.prod.website-files.com/65021260e4fae0ddc09307a3/679917cf42449f2b2f34c968_Edge-Universal-Translation-2025.webp" alt="FairCom Edge connecting protocols, equipment, and external systems" width="80%">
+  <img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/edge-universal-translation.webp" alt="FairCom Edge connecting protocols, equipment, and external systems" width="80%">
 </p>
 
 - Full MQTT broker with store-and-forward messaging
