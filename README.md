@@ -1,3 +1,13 @@
+<p align="center">
+  <a href="https://www.faircom.com">
+    <img src="https://cdn.prod.website-files.com/65021260e4fae0ddc09307a3/6887edb6ed0ffbb4c0c543f1_FairCom-Primary.svg" alt="FairCom" height="48">
+  </a>
+  &nbsp;&nbsp;&nbsp;
+  <a href="https://www.faircom.com/products/edge">
+    <img src="https://cdn.prod.website-files.com/65021260e4fae0ddc09307a3/6579d4c95f79ada42fa9a050_Edge-Icon.svg" alt="FairCom Edge" height="48">
+  </a>
+</p>
+
 # FairCom Edge Docker
 
 Official Docker image build repository for [FairCom Edge](https://www.faircom.com/products/faircom-edge) — a minimal, multi-architecture image (~350MB) for `linux/amd64` and `linux/arm64`.
