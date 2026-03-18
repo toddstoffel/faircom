@@ -1,26 +1,26 @@
-<p align="center"><a href="https://www.faircom.com"><img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/faircom-logo.svg" alt="FairCom" height="48"></a></p>
+<p align="center">
+<a href="https://www.faircom.com"><img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/faircom-logo.svg" alt="FairCom" height="56"></a>
+<br><br>
+<strong>FairCom Edge Docker</strong><br>
+Multi-architecture Docker image for <a href="https://www.faircom.com/products/faircom-edge">FairCom Edge</a> (~350MB) targeting <code>linux/amd64</code> and <code>linux/arm64</code>.<br><br>
+<a href="https://hub.docker.com/r/toddstoffel0810/faircom">Docker Hub: toddstoffel0810/faircom</a>
+</p>
 
-# FairCom Edge Docker
-
-Official Docker image build repository for [FairCom Edge](https://www.faircom.com/products/faircom-edge) — a minimal, multi-architecture image (~350MB) for `linux/amd64` and `linux/arm64`.
-
-**Docker Hub**: [toddstoffel0810/faircom](https://hub.docker.com/r/toddstoffel0810/faircom)
+---
 
 ## What is FairCom Edge?
 
-FairCom Edge is a low-code IoT hub engineered for the edge — from factory floors to warehouses to wind farms. It unifies a database, MQTT broker, IoT connector, and transformation engine under one platform, enabling you to collect, transform, and deliver machine data in real time.
+FairCom Edge is an IoT hub designed to run on the edge, from factory floors to warehouses to wind farms. It combines a database, MQTT broker, IoT connector, and transformation engine in a single platform so you can collect, process, and deliver machine data without stitching together separate tools.
 
 <p align="center">
-  <img src="https://cdn.prod.website-files.com/65021260e4fae0ddc09307a3/679917cf42449f2b2f34c968_Edge-Universal-Translation-2025.webp" alt="FairCom Edge as a universal translator, connecting protocols, equipment, and external systems" width="80%">
+  <img src="https://cdn.prod.website-files.com/65021260e4fae0ddc09307a3/679917cf42449f2b2f34c968_Edge-Universal-Translation-2025.webp" alt="FairCom Edge connecting protocols, equipment, and external systems" width="80%">
 </p>
 
-Key capabilities:
-
-- **Full MQTT Broker** — store-and-forward messaging with persistence
-- **Embedded Database** — on-site data storage with SQL and JSON APIs
-- **Protocol Translation** — connect OPC-UA, Modbus, REST, and more
-- **Cloud Integration** — publish machine data to cloud analytics platforms
-- **Low-Code Configuration** — JSON-driven setup, no specialized coding required
+- Full MQTT broker with store-and-forward messaging
+- Embedded database with SQL and JSON APIs
+- Protocol support for OPC-UA, Modbus, REST, and more
+- JSON-based configuration, no specialized coding required
+- Cloud publishing to analytics and ML platforms
 
 ## Using the Image
 
@@ -30,13 +30,13 @@ Key capabilities:
 curl -fsSL https://raw.githubusercontent.com/toddstoffel/faircom/main/faircom_quick_start.sh | bash
 ```
 
-Or clone the repo and run directly:
+Or clone the repo and run the script directly:
 
 ```bash
 ./faircom_quick_start.sh
 ```
 
-**Commands:**
+Available commands:
 
 ```bash
 ./faircom_quick_start.sh start    # Start the container (default)
@@ -51,13 +51,13 @@ Or clone the repo and run directly:
 .\faircom_quick_start.ps1
 ```
 
-**Note**: You may need to enable script execution first:
+If script execution is blocked, run this first:
 
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
 ```
 
-**Commands:**
+Available commands:
 
 ```powershell
 .\faircom_quick_start.ps1 start    # Start the container (default)
@@ -95,6 +95,8 @@ docker run -d \
 
 ### Data Persistence
 
+Mount a volume to retain data across container restarts:
+
 ```bash
 docker run -d \
   --name faircom-edge \
@@ -103,31 +105,35 @@ docker run -d \
   toddstoffel0810/faircom:latest
 ```
 
-## Access Points
+## Access
+
+Once running, the following are available:
 
 | URL | Description |
 |-----|-------------|
-| <http://localhost:8080> | Web Interface |
+| <http://localhost:8080> | Web interface |
 | <http://localhost:8080/api> | REST API |
-| localhost:6597 | SQL Connection |
+| localhost:6597 | SQL connection |
 
-**Default credentials**: `ADMIN` / `ADMIN`
+Default credentials: `ADMIN` / `ADMIN`
 
-## Web Applications
+### Web Applications
 
-- **MQExplorer** — MQTT broker management
-- **AceMonitor** — Server monitoring and metrics
-- **SQLExplorer** — SQL query interface
-- **ISAMExplorer** — Low-level database explorer
+| App | Description |
+|-----|-------------|
+| MQExplorer | MQTT broker management |
+| AceMonitor | Server monitoring and metrics |
+| SQLExplorer | SQL query interface |
+| ISAMExplorer | Low-level database explorer |
 
 ## Ports
 
-| Port | Service | Description |
-|------|---------|-------------|
+| Port | Protocol | Description |
+|------|----------|-------------|
 | 8080 | HTTP | Web apps and REST API |
-| 9001 | MQTT/WS | MQTT over WebSocket (non-SSL) |
-| 1883 | MQTT | MQTT broker (non-SSL) |
-| 6597 | Database | FairCom database port |
+| 9001 | MQTT/WS | MQTT over WebSocket |
+| 1883 | MQTT | MQTT broker |
+| 6597 | TCP | FairCom database |
 
 ---
 
@@ -135,21 +141,21 @@ docker run -d \
 
 ### Prerequisites
 
-1. **Docker Desktop** with `buildx` support
-2. **FairCom Edge binary tarballs** — download from [faircom.com/products/download-edge](https://www.faircom.com/products/download-edge):
-   - `FairCom-Edge.linux.el8.x64.64bit.<version>.tar` — for `linux/amd64`
-   - `FairCom-Edge.linux.arm_generic.64bit.<version>.tar` — for `linux/arm64`
+1. Docker Desktop with `buildx` support
+2. FairCom Edge binary tarballs downloaded from [faircom.com/products/download-edge](https://www.faircom.com/products/download-edge):
+   - `FairCom-Edge.linux.el8.x64.64bit.<version>.tar` (for `linux/amd64`)
+   - `FairCom-Edge.linux.arm_generic.64bit.<version>.tar` (for `linux/arm64`)
 
-   Place both files in `build/source/`.
+   Place both files in `build/source/` before building.
 
-### Build and Push (multi-architecture)
+### Build and Push
+
+Builds for `linux/amd64` and `linux/arm64`, pushes to Docker Hub, and updates the Docker Hub overview in one step:
 
 ```bash
 cd build/docker
 ./build-and-push.sh toddstoffel0810/faircom latest
 ```
-
-Builds for both `linux/amd64` and `linux/arm64`, pushes the image to Docker Hub, and updates the Docker Hub README — all in one step.
 
 ### Local Build
 
@@ -158,7 +164,7 @@ cd build/docker
 ./build-local.sh toddstoffel0810/faircom latest
 ```
 
-### Update Docker Hub README Only
+### Update Docker Hub Overview Only
 
 ```bash
 cd build/docker
@@ -174,9 +180,9 @@ cd build/docker
 
 ## License
 
-FairCom Edge is commercial software. This Docker image uses FairCom Edge v5.1.0.84.
+FairCom Edge is commercial software. This image packages FairCom Edge v5.1.0.84.
 
-> **Demo Limitation**: The FairCom Edge evaluation build has a **3-hour runtime limit** and must be restarted after that period.
+The evaluation build has a 3-hour runtime limit and needs to be restarted after that period.
 
-By using this image, you agree to the [FairCom Edge Developer License Agreement](https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf).
+By downloading or using this image you agree to the [FairCom Edge Developer License Agreement](https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf).
 
