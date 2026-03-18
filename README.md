@@ -37,7 +37,7 @@ Minimal Docker image for FairCom Edge database (~350MB) configured for easy depl
 The easiest way to get started is with this one-liner:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/toddstoffel/faircom_edge_quickstart/main/faircom_quick_start.sh | bash
+curl -fsSL https://raw.githubusercontent.com/toddstoffel/faircom/main/faircom_quick_start.sh | bash
 ```
 
 Or if you've cloned the repository, run the script directly:
