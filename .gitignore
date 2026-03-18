@@ -1,5 +1,5 @@
-# Build files - not for public distribution
-build/
+# FairCom binary tarballs - download separately from https://www.faircom.com/products/download-edge
+build/source/
 
 # macOS
 .DS_Store

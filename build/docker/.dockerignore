@@ -1,0 +1,6 @@
+# Exclude everything except the source tar files and config
+*
+!source/
+!source/FairCom-Edge.linux.*.tar
+!config/
+!config/services.json

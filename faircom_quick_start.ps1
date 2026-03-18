@@ -1,9 +1,9 @@
 # Launch FairCom Edge Docker container
-# Usage: .\faircom_quick_start.ps1 [start|stop|restart|logs|sample-data]
+# Usage: .\faircom_quick_start.ps1 [start|stop|restart|logs]
 
 param(
     [Parameter(Position=0)]
-    [ValidateSet('start', 'stop', 'restart', 'logs', 'sample-data', 'help')]
+    [ValidateSet('start', 'stop', 'restart', 'logs', 'help')]
     [string]$Command = 'start'
 )
 
@@ -72,31 +72,14 @@ function Show-Logs {
     docker logs -f $CONTAINER_NAME
 }
 
-function Create-SampleData {
-    Write-Host "Creating sample data..." -ForegroundColor Cyan
-    Write-Host ""
-    
-    # Check if container is running
-    $runningContainer = docker ps --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
-    if (-not $runningContainer) {
-        Write-Host "❌ Error: Container '$CONTAINER_NAME' is not running." -ForegroundColor Red
-        Write-Host "Please start the container first with: .\faircom_quick_start.ps1 start"
-        exit 1
-    }
-    
-    # Run the Python script inside the container
-    docker exec -w /opt/faircom/server $CONTAINER_NAME python3 /usr/local/bin/create_sample_data.py
-}
-
 function Show-Usage {
-    Write-Host "Usage: .\faircom_quick_start.ps1 [start|stop|restart|logs|sample-data]"
+    Write-Host "Usage: .\faircom_quick_start.ps1 [start|stop|restart|logs]"
     Write-Host ""
     Write-Host "Commands:"
-    Write-Host "  start        - Start the FairCom Edge container"
-    Write-Host "  stop         - Stop and remove the container"
-    Write-Host "  restart      - Restart the container"
-    Write-Host "  logs         - Show container logs (follow mode)"
-    Write-Host "  sample-data  - Create sample database with demo data"
+    Write-Host "  start    - Start the FairCom Edge container"
+    Write-Host "  stop     - Stop and remove the container"
+    Write-Host "  restart  - Restart the container"
+    Write-Host "  logs     - Show container logs (follow mode)"
     Write-Host ""
     Write-Host "If no command is provided, 'start' is assumed."
 }
@@ -114,9 +97,6 @@ switch ($Command) {
     }
     'logs' {
         Show-Logs
-    }
-    'sample-data' {
-        Create-SampleData
     }
     'help' {
         Show-Usage

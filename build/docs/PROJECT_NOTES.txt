@@ -1,0 +1,155 @@
+================================================================================
+FairCom Edge Docker Project - Notes
+================================================================================
+
+PROJECT SUMMARY
+---------------
+This project creates a minimal multi-architecture Docker image for FairCom Edge
+database configured for non-SSL deployments. The image is 350MB (30% under the
+500MB target) and supports both linux/amd64 and linux/arm64 platforms.
+
+Docker Hub: toddstoffel0810/faircom:latest
+
+
+DIRECTORY STRUCTURE
+-------------------
+docker/
+  - Dockerfile           : Multi-stage build for minimal image
+  - .dockerignore        : Build context controls
+  - build-and-push.sh    : Automated multi-arch build script
+
+config/
+  - services.json        : Complete FairCom services configuration
+                          (HTTP/MQTT/MQTTWS enabled, SSL services disabled)
+
+source/
+  - FairCom-Edge.linux.arm_generic.64bit.v4.2.3.174.250513.tar
+  - FairCom-Edge.linux.el8.x64.64bit.v4.2.3.174.250513.tar
+
+docs/
+  - FAIRCOM_BUG_REPORT.txt : Bug report about hardcoded wss:// protocol
+  - PROJECT_NOTES.txt      : This file
+
+
+KEY DECISIONS & OPTIMIZATIONS
+------------------------------
+
+1. Image Size Reduction (587MB removed)
+   - Removed: tools, drivers, agent, dbnotify, integration services
+   - Removed: modbus, opc, thingworx, aggregation, classes, tutorials
+   - Final size: 350MB (vs 500MB target)
+
+2. Non-SSL Configuration
+   Services enabled:
+   - http8080     (HTTP web apps/REST)
+   - mqtt1883     (MQTT broker)
+   - mqttws9001   (MQTT over WebSocket)
+   
+   Services disabled:
+   - https8443    (HTTPS)
+   - mqtts8883    (MQTT over TLS)
+   - mqttwss9002  (MQTT over secure WebSocket)
+   - All integration services (opcua, modbus, siemensS7, etc.)
+
+3. JavaScript Patching Workaround
+   MQExplorer hardcodes wss:// protocol in client-side JavaScript with no
+   configuration option. Required workaround:
+   
+   - 5 sed expressions to patch .js and .html files
+   - Changes wss:// to ws:// and port 9002 to 9001
+   - Applied during Docker build to MQTT.js library and index.html
+   
+   This is a hack but necessary until FairCom fixes the hardcoded protocol.
+   See FAIRCOM_BUG_REPORT.txt for detailed bug report.
+
+
+CONFIGURATION APPROACH
+----------------------
+Originally attempted to use sed commands to modify services.json during build,
+but this was messy (12 total sed commands). Refactored to:
+
+1. Created complete services.json with correct settings (replaced 5 sed commands)
+2. Consolidated JavaScript patches into single find command (7 commands → 1 find + 5 expressions)
+3. Removed openssl dependency (no longer needed without certificates)
+
+Result: Cleaner, more maintainable Dockerfile
+
+
+BUILD COMMANDS
+--------------
+
+Quick build and push:
+  cd /Users/todd.stoffel/Desktop/tiny\ docker
+  ./docker/build-and-push.sh toddstoffel0810/faircom latest
+
+Manual multi-arch build:
+  docker buildx build \
+    --platform linux/amd64,linux/arm64 \
+    -f docker/Dockerfile \
+    -t toddstoffel0810/faircom:latest \
+    --push \
+    .
+
+Local test build:
+  docker build -f docker/Dockerfile -t faircom-edge:test .
+
+
+RUNNING THE CONTAINER
+---------------------
+
+Start container:
+  docker run -d --name faircom-edge \
+    -p 8080:8080 -p 9001:9001 -p 1883:1883 -p 6597:6597 \
+    toddstoffel0810/faircom:latest
+
+Access web apps:
+  http://localhost:8080/apps/MQExplorer/
+  http://localhost:8080/apps/AceMonitor/
+  http://localhost:8080/apps/SQLExplorer/
+  http://localhost:8080/apps/ISAMExplorer/
+
+Default credentials: ADMIN/ADMIN
+
+Stop and remove:
+  docker stop faircom-edge && docker rm faircom-edge
+
+
+KNOWN ISSUES
+------------
+
+1. MQExplorer WebSocket Protocol Hardcoded
+   - Client-side JavaScript hardcodes wss:// protocol
+   - No configuration option available
+   - Requires sed patching during build
+   - Bug report filed: docs/FAIRCOM_BUG_REPORT.txt
+   
+   Proposed fix: Auto-detect protocol based on page URL
+   (http:// → ws://, https:// → wss://)
+
+2. Browser Cache
+   - After rebuilding image, browser may cache old JavaScript
+   - Solution: Hard refresh (Cmd+Shift+R) or use incognito mode
+
+
+FUTURE IMPROVEMENTS
+-------------------
+
+1. If FairCom fixes hardcoded protocol issue:
+   - Remove JavaScript sed patches from Dockerfile
+   - Simplify to pure configuration-based approach
+
+2. Consider adding:
+   - Health check endpoint
+   - Docker Compose file for easy deployment
+   - Volume mount examples for data persistence
+   - Environment variable configuration options
+
+
+VERSION INFORMATION
+-------------------
+FairCom Edge:    v4.2.3.174.250513
+Base Image:      debian:12-slim
+Build Date:      November 14, 2025
+Docker Hub:      toddstoffel0810/faircom:latest
+
+================================================================================

@@ -1,0 +1,204 @@
+================================================================================
+BUG REPORT: MQExplorer WebSocket Protocol Hardcoded
+================================================================================
+
+SUMMARY
+-------
+MQExplorer hardcodes the WebSocket protocol (wss://) and port in client-side 
+JavaScript, preventing configuration-based deployment without SSL certificates. 
+This is inconsistent with the rest of the configurable services in services.json.
+
+
+ENVIRONMENT
+-----------
+Product:        FairCom Edge
+Version:        v4.2.3.174.250513
+Component:      MQExplorer Web Application
+Affected Files: 
+  - /server/web/apps/MQExplorer/index.html (line 103)
+  - /server/web/apps/MQExplorer/app.js (minified)
+  - /server/web/apps/MQExplorer/resources/libs/mqtt/mqtt*.js (MQTT.js library)
+
+
+PROBLEM DESCRIPTION
+-------------------
+
+Current Behavior:
+The MQExplorer application hardcodes the WebSocket Secure (WSS) protocol in 
+index.html:
+
+    client = mqtt.connect(`wss://${host}:${connectionCfg.mqttWsPort}`, options);
+
+Additionally, the default port is hardcoded to 9002 (the secure WebSocket port) 
+in the application JavaScript.
+
+
+Expected Behavior:
+The WebSocket protocol and port should be configurable via:
+  1. The existing services.json configuration file, OR
+  2. A separate MQExplorer configuration file, OR
+  3. Environment variables, OR
+  4. Runtime detection based on the page's own protocol (http vs https)
+
+
+IMPACT
+------
+
+1. Docker/Container Deployments
+   When deploying FairCom Edge in containerized environments (Docker, Kubernetes), 
+   administrators often:
+   - Want to avoid SSL certificate management for internal/development deployments
+   - Use reverse proxies (nginx, Traefik, ALB) to handle SSL termination
+   - Need non-SSL WebSocket connections (ws://) on port 9001
+
+   Currently, there is NO configuration-based way to use non-SSL WebSockets, 
+   forcing one of these workarounds:
+   - Generate self-signed certificates (creates browser warnings for users)
+   - Use sed commands to patch JavaScript files during Docker build (brittle, non-standard)
+   - Maintain pre-patched copies of vendor files (maintenance nightmare across versions)
+
+
+2. Inconsistency with Services Configuration
+   The services.json file allows administrators to enable/disable services:
+
+   {
+     "serviceName": "mqttws9001",
+     "enabled": true,
+     "protocol": "mqttws",
+     "port": 9001
+   },
+   {
+     "serviceName": "mqttwss9002",
+     "enabled": false,
+     "protocol": "mqttwss",
+     "port": 9002
+   }
+
+   However, MQExplorer IGNORES this configuration and always attempts wss:// 
+   connections regardless of which services are actually enabled.
+
+
+3. Development & Testing
+   Developers working on localhost cannot easily test without:
+   - Installing SSL certificates for localhost
+   - Accepting browser security warnings repeatedly
+   - Using workarounds to patch the JavaScript
+
+
+REPRODUCTION STEPS
+------------------
+1. Configure FairCom Edge with only non-SSL services enabled in services.json:
+   {
+     "serviceName": "mqttws9001",
+     "enabled": true,
+     "protocol": "mqttws",
+     "port": 9001
+   },
+   {
+     "serviceName": "mqttwss9002",
+     "enabled": false,
+     "protocol": "mqttwss", 
+     "port": 9002
+   }
+
+2. Start FairCom Edge server
+
+3. Access MQExplorer at http://localhost:8080/apps/MQExplorer/
+
+4. Observe that the application attempts to connect via wss://localhost:9002
+
+5. Connection fails because:
+   - Port 9002 is not listening (service disabled)
+   - Browser blocks insecure WebSocket from secure context
+
+
+CURRENT WORKAROUNDS
+-------------------
+
+Workaround 1: Runtime JavaScript Patching (Docker)
+
+    RUN find /opt/faircom/server/web/apps/MQExplorer -type f \( -name "*.js" -o -name "*.html" \) \
+        -exec sed -i -e "s/a\.protocol==='mqttwss'/a.protocol==='mqttws'/g" \
+                     -e "s/connectionCfg\.mqttWsPort=9002/connectionCfg.mqttWsPort=9001/g" \
+                     -e 's/"wss"/"ws"/g' \
+                     -e "s/'wss'/'ws'/g" \
+                     -e 's/wss:\/\//ws:\/\//g' {} +
+
+    Issues: 
+    - Non-standard deployment process
+    - Fragile across version updates
+    - Modifies vendor code
+    - Requires sed/build-time tooling
+
+
+Workaround 2: Self-Signed Certificates
+
+    Generate certificates and configure SSL services.
+
+    Issues:
+    - Browser security warnings for end users
+    - Certificate management overhead
+    - Not suitable for public Docker images
+    - Adds complexity to simple deployments
+
+
+PROPOSED SOLUTIONS
+------------------
+
+Option 1: Auto-Detection (RECOMMENDED)
+    Make MQExplorer automatically use the same protocol as the page itself:
+
+    const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+    const defaultPort = window.location.protocol === 'https:' ? 9002 : 9001;
+    client = mqtt.connect(`${protocol}//${host}:${connectionCfg.mqttWsPort || defaultPort}`, options);
+
+    Benefits:
+    - Zero configuration required
+    - Matches user expectations (http page → ws://, https page → wss://)
+    - Backward compatible
+    - Works with reverse proxies
+
+
+Option 2: Configuration File
+    Add MQExplorer configuration to services.json or a separate config:
+
+    {
+      "applications": [
+        {
+          "serviceName": "MQExplorer",
+          "uriPath": "MQExplorer",
+          "config": {
+            "mqttWebSocketProtocol": "ws",
+            "mqttWebSocketPort": 9001
+          }
+        }
+      ]
+    }
+
+
+Option 3: Query Services API
+    Have MQExplorer query the /api/admin/services endpoint to discover available 
+    services and their protocols/ports, then automatically select the appropriate one.
+
+
+ADDITIONAL NOTES
+----------------
+All other FairCom web applications (AceMonitor, SQLExplorer, ISAMExplorer) appear 
+to use REST APIs over HTTP/HTTPS which naturally inherit the page's protocol. 
+MQExplorer is unique in requiring direct WebSocket connections, making this 
+configuration gap more critical.
+
+
+SUGGESTED PRIORITY
+------------------
+Medium-High - Affects containerized deployments, which are increasingly common 
+for Edge database deployments.
+
+
+REQUESTED OUTCOME
+-----------------
+1. Remove hardcoded wss:// protocol from MQExplorer
+2. Implement one of the proposed solutions (preferably auto-detection)
+3. Document WebSocket configuration options in deployment guide
+4. Consider making this change backward-compatible by defaulting to current 
+   behavior when accessed via HTTPS

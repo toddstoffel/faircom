@@ -1,0 +1,123 @@
+#!/bin/bash
+
+# Build and push FairCom Edge Docker image
+# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [tag] [--local|--readme-only]
+#
+# Credentials for README push (only used when not --local):
+#   DOCKERHUB_USERNAME  - Docker Hub username
+#   DOCKERHUB_TOKEN     - Docker Hub access token or password
+
+set -e
+
+if [ -z "$1" ]; then
+    echo "Usage: $0 <dockerhub-username/repo-name> [tag] [--local|--readme-only]"
+    echo "Example: $0 myusername/faircom-edge latest"
+    echo ""
+    echo "Options:"
+    echo "  --local        Build locally without pushing to Docker Hub"
+    echo "  --readme-only  Only push README to Docker Hub (skip image build)"
+    exit 1
+fi
+
+REPO=$1
+TAG=${2:-latest}
+FULL_IMAGE="${REPO}:${TAG}"
+LOCAL_ONLY=false
+README_ONLY=false
+
+# Check for flags
+for arg in "$@"; do
+    case "$arg" in
+        --local) LOCAL_ONLY=true ;;
+        --readme-only) README_ONLY=true ;;
+    esac
+done
+
+# Change to build directory
+cd "$(dirname "$0")/.."
+
+push_readme() {
+    local readme_path
+    readme_path="$(pwd)/../README.md"
+    if [ ! -f "$readme_path" ]; then
+        echo "⚠️  README push skipped: README.md not found"
+        return
+    fi
+
+    echo ""
+    echo "Pushing README to Docker Hub..."
+
+    # Derive username from repo argument (e.g. "myuser/myrepo" -> "myuser")
+    DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-${REPO%%/*}}"
+
+    # Retrieve token from Docker credential store if not set
+    if [ -z "$DOCKERHUB_TOKEN" ]; then
+        DOCKERHUB_TOKEN=$(echo "https://index.docker.io/v1/" | docker-credential-osxkeychain get 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin)["Secret"])' 2>/dev/null || true)
+    fi
+
+    if [ -z "$DOCKERHUB_TOKEN" ]; then
+        echo "⚠️  README push skipped: no credentials found (set DOCKERHUB_TOKEN env var)"
+        return
+    fi
+
+    TOKEN=$(curl -s -X POST "https://hub.docker.com/v2/users/login" \
+        -H "Content-Type: application/json" \
+        -d "{\"username\": \"${DOCKERHUB_USERNAME}\", \"password\": \"${DOCKERHUB_TOKEN}\"}" \
+        | grep -o '"token":"[^"]*"' | cut -d'"' -f4)
+
+    if [ -z "$TOKEN" ]; then
+        echo "⚠️  README push skipped: Docker Hub authentication failed"
+        return
+    fi
+
+    HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" -X PATCH \
+        "https://hub.docker.com/v2/repositories/${REPO}/" \
+        -H "Authorization: Bearer ${TOKEN}" \
+        -H "Content-Type: application/json" \
+        --data-binary "{\"full_description\": $(cat "$readme_path" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')}")
+
+    if [ "$HTTP_STATUS" = "200" ]; then
+        echo "✅ Successfully updated README for ${REPO}"
+    else
+        echo "⚠️  README push failed (HTTP ${HTTP_STATUS})"
+    fi
+}
+
+if [ "$README_ONLY" = true ]; then
+    push_readme
+    echo ""
+    exit 0
+fi
+
+if [ "$LOCAL_ONLY" = true ]; then
+    echo "Building ${FULL_IMAGE} locally (not pushing to Docker Hub)..."
+else
+    echo "Building and pushing ${FULL_IMAGE} for linux/amd64 and linux/arm64..."
+fi
+
+# Build multi-architecture image
+if [ "$LOCAL_ONLY" = true ]; then
+    docker buildx build \
+        --platform linux/amd64,linux/arm64 \
+        -t "${FULL_IMAGE}" \
+        --load \
+        -f docker/Dockerfile \
+        .
+else
+    docker buildx build \
+        --platform linux/amd64,linux/arm64 \
+        -t "${FULL_IMAGE}" \
+        --push \
+        -f docker/Dockerfile \
+        .
+fi
+
+echo ""
+if [ "$LOCAL_ONLY" = true ]; then
+    echo "✅ Successfully built ${FULL_IMAGE} locally"
+else
+    echo "✅ Successfully built and pushed ${FULL_IMAGE}"
+    push_readme
+fi
+echo ""
+echo ""
