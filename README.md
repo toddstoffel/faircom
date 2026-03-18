@@ -2,9 +2,6 @@
   <a href="https://www.faircom.com">
     <img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/faircom-logo.svg" alt="FairCom" height="48">
   </a>
-  <a href="https://www.faircom.com/products/edge">
-    <img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/edge-icon.svg" alt="FairCom Edge" height="48">
-  </a>
 </p>
 
 # FairCom Edge Docker
