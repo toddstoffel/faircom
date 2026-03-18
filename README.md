@@ -1,8 +1,4 @@
-<p align="center">
-  <a href="https://www.faircom.com">
-    <img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/faircom-logo.svg" alt="FairCom" height="48">
-  </a>
-</p>
+<p align="center"><a href="https://www.faircom.com"><img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/faircom-logo.svg" alt="FairCom" height="48"></a></p>
 
 # FairCom Edge Docker
 
