@@ -10,6 +10,22 @@ Official Docker image build repository for [FairCom Edge](https://www.faircom.co
 
 **Docker Hub**: [toddstoffel0810/faircom](https://hub.docker.com/r/toddstoffel0810/faircom)
 
+## What is FairCom Edge?
+
+FairCom Edge is a low-code IoT hub engineered for the edge — from factory floors to warehouses to wind farms. It unifies a database, MQTT broker, IoT connector, and transformation engine under one platform, enabling you to collect, transform, and deliver machine data in real time.
+
+<p align="center">
+  <img src="https://cdn.prod.website-files.com/65021260e4fae0ddc09307a3/679917cf42449f2b2f34c968_Edge-Universal-Translation-2025.webp" alt="FairCom Edge as a universal translator, connecting protocols, equipment, and external systems" width="80%">
+</p>
+
+Key capabilities:
+
+- **Full MQTT Broker** — store-and-forward messaging with persistence
+- **Embedded Database** — on-site data storage with SQL and JSON APIs
+- **Protocol Translation** — connect OPC-UA, Modbus, REST, and more
+- **Cloud Integration** — publish machine data to cloud analytics platforms
+- **Low-Code Configuration** — JSON-driven setup, no specialized coding required
+
 ## Using the Image
 
 ### Quick Start (macOS/Linux)
