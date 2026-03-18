@@ -179,4 +179,4 @@ For issues or questions:
 
 ## License
 
-FairCom Edge is commercial software. This Docker image uses FairCom Edge v4.2.3.174.
+FairCom Edge is commercial software. This Docker image uses FairCom Edge v5.1.0.84.
