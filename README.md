@@ -158,3 +158,7 @@ cd build/docker
 
 FairCom Edge is commercial software. This Docker image uses FairCom Edge v5.1.0.84.
 
+> **Demo Limitation**: The FairCom Edge evaluation build has a **3-hour runtime limit** and must be restarted after that period.
+
+By using this image, you agree to the [FairCom Edge Developer License Agreement](https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf).
+
