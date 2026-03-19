@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build and push FairCom Edge Docker image
-# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [tag] [--local|--readme-only]
+# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [tag] [--local|--readme-only|--no-scout]
 #
 # Credentials for README push (only used when not --local):
 #   DOCKERHUB_USERNAME  - Docker Hub username
@@ -10,12 +10,13 @@
 set -e
 
 if [ -z "$1" ]; then
-    echo "Usage: $0 <dockerhub-username/repo-name> [tag] [--local|--readme-only]"
+    echo "Usage: $0 <dockerhub-username/repo-name> [tag] [--local|--readme-only|--no-scout]"
     echo "Example: $0 myusername/faircom-edge latest"
     echo ""
     echo "Options:"
     echo "  --local        Build locally without pushing to Docker Hub"
     echo "  --readme-only  Only push README to Docker Hub (skip image build)"
+    echo "  --no-scout     Skip Docker Scout vulnerability scan after push"
     exit 1
 fi
 
@@ -24,12 +25,14 @@ TAG=${2:-latest}
 FULL_IMAGE="${REPO}:${TAG}"
 LOCAL_ONLY=false
 README_ONLY=false
+SCOUT=true
 
 # Check for flags
 for arg in "$@"; do
     case "$arg" in
         --local) LOCAL_ONLY=true ;;
         --readme-only) README_ONLY=true ;;
+        --no-scout) SCOUT=false ;;
     esac
 done
 
@@ -83,6 +86,28 @@ push_readme() {
     fi
 }
 
+run_scout() {
+    if ! docker scout version &>/dev/null 2>&1; then
+        echo "⚠️  Docker Scout skipped: 'docker scout' not available"
+        return
+    fi
+
+    echo ""
+    echo "Running Docker Scout analysis for ${FULL_IMAGE}..."
+
+    echo ""
+    echo "--- Vulnerability Summary ---"
+    docker scout quickview "${FULL_IMAGE}" 2>/dev/null || true
+
+    echo ""
+    echo "--- Critical & High CVEs ---"
+    docker scout cves "${FULL_IMAGE}" --only-severity critical,high 2>/dev/null || true
+
+    echo ""
+    echo "--- Base Image Recommendations ---"
+    docker scout recommendations "${FULL_IMAGE}" 2>/dev/null || true
+}
+
 if [ "$README_ONLY" = true ]; then
     push_readme
     echo ""
@@ -128,6 +153,9 @@ if [ "$LOCAL_ONLY" = true ]; then
 else
     echo "✅ Successfully built and pushed ${FULL_IMAGE}"
     push_readme
+    if [ "$SCOUT" = true ]; then
+        run_scout
+    fi
 fi
 echo ""
 echo ""

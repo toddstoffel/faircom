@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build FairCom Edge Docker image locally (no push to Docker Hub)
-# Usage: ./build-local.sh <dockerhub-username/repo-name> [tag] [platform]
+# Usage: ./build-local.sh <dockerhub-username/repo-name> [tag] [platform] [--no-scout]
 
 set -e
 
@@ -19,6 +19,13 @@ REPO=$1
 TAG=${2:-latest}
 PLATFORM=${3:-linux/amd64}
 FULL_IMAGE="${REPO}:${TAG}"
+SCOUT=true
+
+for arg in "$@"; do
+    case "$arg" in
+        --no-scout) SCOUT=false ;;
+    esac
+done
 
 echo "Building ${FULL_IMAGE} locally for ${PLATFORM} (not pushing to Docker Hub)..."
 
@@ -46,3 +53,16 @@ echo "   Image loaded into local Docker daemon"
 echo ""
 echo "To test: docker run -d -p 8080:8080 ${FULL_IMAGE}"
 echo ""
+
+if [ "$SCOUT" = true ]; then
+    if docker scout version &>/dev/null 2>&1; then
+        echo "--- Vulnerability Summary ---"
+        docker scout quickview "${FULL_IMAGE}" 2>/dev/null || true
+        echo ""
+        echo "--- Base Image Recommendations ---"
+        docker scout recommendations "${FULL_IMAGE}" 2>/dev/null || true
+        echo ""
+    else
+        echo "⚠️  Docker Scout skipped: 'docker scout' not available"
+    fi
+fi
