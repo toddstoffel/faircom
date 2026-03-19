@@ -4,5 +4,8 @@ build/source/
 # Local notes - not for publication
 FAIRCOM_BUG_REPORT.txt
 
+# Local CVE reference files - not for publication
+CVE/
+
 # macOS
 .DS_Store
