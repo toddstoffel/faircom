@@ -1,5 +1,8 @@
 # FairCom binary tarballs - download separately from https://www.faircom.com/products/download-edge
 build/source/
 
+# Local notes - not for publication
+FAIRCOM_BUG_REPORT.txt
+
 # macOS
 .DS_Store
