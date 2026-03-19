@@ -25,10 +25,17 @@ echo "Building ${FULL_IMAGE} locally for ${PLATFORM} (not pushing to Docker Hub)
 # Change to build directory
 cd "$(dirname "$0")/.."
 
+# Resolve build metadata for OCI labels
+BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+VCS_REF=$(git -C "$(pwd)" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
 # Build for single platform and load into local Docker
 docker buildx build \
     --platform "${PLATFORM}" \
     -t "${FULL_IMAGE}" \
+    --build-arg VERSION="${TAG}" \
+    --build-arg BUILD_DATE="${BUILD_DATE}" \
+    --build-arg VCS_REF="${VCS_REF}" \
     --load \
     -f docker/Dockerfile \
     .

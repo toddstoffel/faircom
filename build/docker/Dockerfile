@@ -18,13 +18,27 @@ RUN set -eux; \
     rm -f FairCom-Edge.linux.*.tar
 
 # Final minimal image
-FROM debian:12-slim
+FROM --platform=$TARGETPLATFORM debian:12-slim
+
+# OCI image specification labels for traceability, SBOM, and vulnerability scanning
+ARG VERSION=latest
+ARG BUILD_DATE
+ARG VCS_REF
+LABEL org.opencontainers.image.title="FairCom Edge" \
+      org.opencontainers.image.description="FairCom Edge database server (multi-arch: amd64, arm64)" \
+      org.opencontainers.image.vendor="FairCom" \
+      org.opencontainers.image.version="${VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.revision="${VCS_REF}" \
+      org.opencontainers.image.licenses="Proprietary" \
+      org.opencontainers.image.base.name="debian:12-slim"
 
 # Install minimal runtime dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libc6 \
     libstdc++6 \
     libgcc-s1 \
+    curl \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
@@ -64,11 +78,18 @@ RUN find /opt/faircom/server/web/apps/MQExplorer -type f \( -name "*.js" -o -nam
 # Set library path for FairCom libraries
 ENV LD_LIBRARY_PATH=/opt/faircom/server
 
+# Graceful shutdown — lets the server flush in-flight connections before exit
+STOPSIGNAL SIGTERM
+
 # Switch to non-root user
 USER faircom
 
 # Expose ports
 EXPOSE 6597 8080 8443 1883 8883 9001 9002
+
+# Health check — confirms the HTTP listener is accepting requests
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD curl -fsS http://localhost:8080/ > /dev/null || exit 1
 
 # Start the server
 WORKDIR /opt/faircom/server

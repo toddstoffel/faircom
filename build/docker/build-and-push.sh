@@ -95,11 +95,18 @@ else
     echo "Building and pushing ${FULL_IMAGE} for linux/amd64 and linux/arm64..."
 fi
 
+# Resolve build metadata for OCI labels
+BUILD_DATE=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+VCS_REF=$(git -C "$(pwd)" rev-parse --short HEAD 2>/dev/null || echo "unknown")
+
 # Build multi-architecture image
 if [ "$LOCAL_ONLY" = true ]; then
     docker buildx build \
         --platform linux/amd64,linux/arm64 \
         -t "${FULL_IMAGE}" \
+        --build-arg VERSION="${TAG}" \
+        --build-arg BUILD_DATE="${BUILD_DATE}" \
+        --build-arg VCS_REF="${VCS_REF}" \
         --load \
         -f docker/Dockerfile \
         .
@@ -107,6 +114,9 @@ else
     docker buildx build \
         --platform linux/amd64,linux/arm64 \
         -t "${FULL_IMAGE}" \
+        --build-arg VERSION="${TAG}" \
+        --build-arg BUILD_DATE="${BUILD_DATE}" \
+        --build-arg VCS_REF="${VCS_REF}" \
         --push \
         -f docker/Dockerfile \
         .

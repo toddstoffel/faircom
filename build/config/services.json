@@ -58,7 +58,7 @@
 		"defaultApi": "hub",
 		"defaultBinaryFormat": "hex",
 		"defaultDatabaseName": "faircom",
-		"defaultDebug": "max",
+		"defaultDebug": "none",
 		"defaultOwnerName": "admin",
 		"defaultResponseOptions":
 		{

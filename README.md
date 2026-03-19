@@ -67,6 +67,8 @@ Available commands:
 
 ### Docker Compose
 
+The image includes a built-in `HEALTHCHECK` on port 8080. Use `condition: service_healthy` in dependent services to wait for FairCom Edge to be fully ready before starting:
+
 ```yaml
 services:
   faircom-edge:
@@ -78,6 +80,18 @@ services:
       - "9001:9001"   # MQTT over WebSocket
       - "1883:1883"   # MQTT
       - "6597:6597"   # FairCom database
+
+  your-app:
+    image: your-app:latest
+    depends_on:
+      faircom-edge:
+        condition: service_healthy
+```
+
+Check health status at any time:
+
+```bash
+docker inspect --format='{{json .State.Health.Status}}' faircom-edge
 ```
 
 ### Docker CLI
@@ -133,6 +147,18 @@ Default credentials: `ADMIN` / `ADMIN`
 | 9001 | MQTT/WS | MQTT over WebSocket |
 | 1883 | MQTT | MQTT broker |
 | 6597 | TCP | FairCom database |
+
+---
+
+## Image Details
+
+| Property | Value |
+|----------|-------|
+| Base image | `debian:12-slim` |
+| Architectures | `linux/amd64`, `linux/arm64` |
+| Run as | Non-root (`faircom`, uid 1000) |
+| Health check | HTTP GET `localhost:8080` every 30s |
+| OCI labels | Full `org.opencontainers.image.*` set |
 
 ---
 
