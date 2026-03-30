@@ -34,11 +34,14 @@ LABEL org.opencontainers.image.title="FairCom Edge" \
       org.opencontainers.image.base.name="debian:12-slim"
 
 # Install minimal runtime dependencies
+# libnghttp2-14- (minus) explicitly removes the HTTP/2 dependency pulled in by curl;
+# curl falls back to HTTP/1.1, which is sufficient for the health check.
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libc6 \
     libstdc++6 \
     libgcc-s1 \
     curl \
+    && apt-get remove -y libnghttp2-14 \
     && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user for security
