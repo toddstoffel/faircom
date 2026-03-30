@@ -24,11 +24,11 @@ function Start-Container {
     Write-Host " FairCom Edge — Evaluation Build"
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     Write-Host ""
-    Write-Host " ⚠  EVALUATION LICENSE — 3-HOUR RUNTIME LIMIT" -ForegroundColor Yellow
+    Write-Host " [!] EVALUATION LICENSE — 3-HOUR RUNTIME LIMIT" -ForegroundColor Yellow
     Write-Host "    This build will automatically stop after 3 hours. Restart the container"
     Write-Host "    to resume. For production use, contact FairCom for a full license."
     Write-Host ""
-    Write-Host " 📄 License agreement:"
+    Write-Host " [+] License agreement:"
     Write-Host "    https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf"
     Write-Host ""
     Write-Host "    By starting this container you agree to the terms of that license."
