@@ -15,6 +15,16 @@ PORT_MQTT="1883"
 PORT_DB="6597"
 
 start_container() {
+    # Check if container already exists
+    if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+        echo "Container '${CONTAINER_NAME}' already exists. Use 'restart' to restart it."
+        exit 1
+    fi
+
+    echo ""
+    echo "Pulling FairCom Edge image..."
+    docker pull "${IMAGE}"
+
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo " FairCom Edge — Evaluation Build"
@@ -31,14 +41,7 @@ start_container() {
     echo ""
     echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     echo ""
-    echo "Starting FairCom Edge container..."
-    
-    # Check if container already exists
-    if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-        echo "Container '${CONTAINER_NAME}' already exists. Use 'restart' to restart it."
-        exit 1
-    fi
-    
+
     docker run -d \
         --name "${CONTAINER_NAME}" \
         -p "${PORT_HTTP}:8080" \
@@ -46,10 +49,9 @@ start_container() {
         -p "${PORT_MQTT}:1883" \
         -p "${PORT_DB}:6597" \
         --restart unless-stopped \
-        "${IMAGE}"
-    
-    echo ""
-    echo "✅ FairCom Edge started successfully!"
+        "${IMAGE}" > /dev/null
+
+    echo "[ok] FairCom Edge started successfully!"
     echo ""
     echo "Web Interface:     http://localhost:${PORT_HTTP}"
     echo "REST API:          http://localhost:${PORT_HTTP}/api"
@@ -66,7 +68,7 @@ stop_container() {
         exit 1
     }
     docker rm "${CONTAINER_NAME}" 2>/dev/null
-    echo "✅ Container stopped and removed."
+    echo "[ok] Container stopped and removed."
 }
 
 restart_container() {

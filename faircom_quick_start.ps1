@@ -19,6 +19,17 @@ $PORT_MQTT = "1883"
 $PORT_DB = "6597"
 
 function Start-Container {
+    # Check if container already exists
+    $existingContainer = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
+    if ($existingContainer) {
+        Write-Host "Container '$CONTAINER_NAME' already exists. Use 'restart' to restart it."
+        exit 1
+    }
+
+    Write-Host ""
+    Write-Host "Pulling FairCom Edge image..."
+    docker pull $IMAGE
+
     Write-Host ""
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     Write-Host " FairCom Edge — Evaluation Build"
@@ -35,15 +46,7 @@ function Start-Container {
     Write-Host ""
     Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
     Write-Host ""
-    Write-Host "Starting FairCom Edge container..." -ForegroundColor Cyan
-    
-    # Check if container already exists
-    $existingContainer = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
-    if ($existingContainer) {
-        Write-Host "Container '$CONTAINER_NAME' already exists. Use 'restart' to restart it." -ForegroundColor Yellow
-        exit 1
-    }
-    
+
     docker run -d `
         --name $CONTAINER_NAME `
         -p "${PORT_HTTP}:8080" `
@@ -51,10 +54,9 @@ function Start-Container {
         -p "${PORT_MQTT}:1883" `
         -p "${PORT_DB}:6597" `
         --restart unless-stopped `
-        $IMAGE
-    
-    Write-Host ""
-    Write-Host "✅ FairCom Edge started successfully!" -ForegroundColor Green
+        $IMAGE | Out-Null
+
+    Write-Host "[ok] FairCom Edge started successfully!"
     Write-Host ""
     Write-Host "Web Interface:     http://localhost:$PORT_HTTP"
     Write-Host "REST API:          http://localhost:$PORT_HTTP/api"
@@ -70,7 +72,7 @@ function Stop-Container {
     try {
         docker stop $CONTAINER_NAME 2>$null
         docker rm $CONTAINER_NAME 2>$null
-        Write-Host "✅ Container stopped and removed." -ForegroundColor Green
+        Write-Host "[ok] Container stopped and removed."
     }
     catch {
         Write-Host "Container '$CONTAINER_NAME' is not running." -ForegroundColor Yellow
