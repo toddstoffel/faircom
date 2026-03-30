@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build and push FairCom Edge Docker image
-# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [tag] [--local|--readme-only|--scout]
+# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [--local|--readme-only|--scout]
 #
 # Credentials for README push (only used when not --local):
 #   DOCKERHUB_USERNAME  - Docker Hub username
@@ -10,8 +10,8 @@
 set -e
 
 if [ -z "$1" ]; then
-    echo "Usage: $0 <dockerhub-username/repo-name> [tag] [--local|--readme-only|--scout]"
-    echo "Example: $0 myusername/faircom-edge latest"
+    echo "Usage: $0 <dockerhub-username/repo-name> [--local|--readme-only|--scout]"
+    echo "Example: $0 faircomteam/edge"
     echo ""
     echo "Options:"
     echo "  --local        Build locally without pushing to Docker Hub"
@@ -21,8 +21,6 @@ if [ -z "$1" ]; then
 fi
 
 REPO=$1
-TAG=${2:-latest}
-FULL_IMAGE="${REPO}:${TAG}"
 LOCAL_ONLY=false
 README_ONLY=false
 SCOUT=false
@@ -39,6 +37,17 @@ done
 # Change to build directory
 cd "$(dirname "$0")/.."
 
+# Auto-detect version from tarball filename (e.g. v5.1.0.84.260213)
+VERSION=$(ls source/FairCom-Edge.linux.el8.x64.64bit.*.tar 2>/dev/null \
+    | sed 's/.*\.64bit\.\(.*\)\.tar/\1/' | head -1)
+if [ -z "$VERSION" ]; then
+    echo "Error: could not detect version from source/ tarball filename"
+    exit 1
+fi
+
+VERSION_IMAGE="${REPO}:${VERSION}"
+LATEST_IMAGE="${REPO}:latest"
+
 push_readme() {
     local readme_path
     readme_path="$(pwd)/../README.md"
@@ -47,7 +56,6 @@ push_readme() {
         return
     fi
 
-    echo ""
     echo "Pushing README to Docker Hub..."
 
     # Retrieve credentials from Docker credential store if not set
@@ -96,19 +104,19 @@ run_scout() {
     fi
 
     echo ""
-    echo "Running Docker Scout analysis for ${FULL_IMAGE}..."
+    echo "Running Docker Scout analysis for ${VERSION_IMAGE}..."
 
     echo ""
     echo "--- Vulnerability Summary ---"
-    docker scout quickview "${FULL_IMAGE}" 2>/dev/null || true
+    docker scout quickview "${VERSION_IMAGE}" 2>/dev/null || true
 
     echo ""
     echo "--- Critical & High CVEs ---"
-    docker scout cves "${FULL_IMAGE}" --only-severity critical,high 2>/dev/null || true
+    docker scout cves "${VERSION_IMAGE}" --only-severity critical,high 2>/dev/null || true
 
     echo ""
     echo "--- Base Image Recommendations ---"
-    docker scout recommendations "${FULL_IMAGE}" 2>/dev/null || true
+    docker scout recommendations "${VERSION_IMAGE}" 2>/dev/null || true
 }
 
 if [ "$README_ONLY" = true ]; then
@@ -118,9 +126,9 @@ if [ "$README_ONLY" = true ]; then
 fi
 
 if [ "$LOCAL_ONLY" = true ]; then
-    echo "Building ${FULL_IMAGE} locally (not pushing to Docker Hub)..."
+    echo "Building ${VERSION_IMAGE} locally (not pushing to Docker Hub)..."
 else
-    echo "Building and pushing ${FULL_IMAGE} for linux/amd64 and linux/arm64..."
+    echo "Building and pushing ${VERSION_IMAGE} and ${LATEST_IMAGE} for linux/amd64 and linux/arm64..."
 fi
 
 # Resolve build metadata for OCI labels
@@ -131,8 +139,9 @@ VCS_REF=$(git -C "$(pwd)" rev-parse --short HEAD 2>/dev/null || echo "unknown")
 if [ "$LOCAL_ONLY" = true ]; then
     docker buildx build \
         --platform linux/amd64,linux/arm64 \
-        -t "${FULL_IMAGE}" \
-        --build-arg VERSION="${TAG}" \
+        -t "${VERSION_IMAGE}" \
+        -t "${LATEST_IMAGE}" \
+        --build-arg VERSION="${VERSION}" \
         --build-arg BUILD_DATE="${BUILD_DATE}" \
         --build-arg VCS_REF="${VCS_REF}" \
         --load \
@@ -141,8 +150,9 @@ if [ "$LOCAL_ONLY" = true ]; then
 else
     docker buildx build \
         --platform linux/amd64,linux/arm64 \
-        -t "${FULL_IMAGE}" \
-        --build-arg VERSION="${TAG}" \
+        -t "${VERSION_IMAGE}" \
+        -t "${LATEST_IMAGE}" \
+        --build-arg VERSION="${VERSION}" \
         --build-arg BUILD_DATE="${BUILD_DATE}" \
         --build-arg VCS_REF="${VCS_REF}" \
         --pull \
@@ -155,9 +165,9 @@ fi
 
 echo ""
 if [ "$LOCAL_ONLY" = true ]; then
-    echo "✅ Successfully built ${FULL_IMAGE} locally"
+    echo "[ok] Successfully built ${VERSION_IMAGE} and ${LATEST_IMAGE} locally"
 else
-    echo "✅ Successfully built and pushed ${FULL_IMAGE}"
+    echo "[ok] Successfully built and pushed ${VERSION_IMAGE} and ${LATEST_IMAGE}"
     push_readme
     if [ "$SCOUT" = true ]; then
         run_scout

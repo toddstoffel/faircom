@@ -157,7 +157,7 @@ Default credentials: `ADMIN` / `ADMIN`
 
 | Property | Value |
 |----------|-------|
-| Base image | `debian:12-slim` |
+| Base image | `debian:stable-slim` |
 | Architectures | `linux/amd64`, `linux/arm64` |
 | Run as | Non-root (`faircom`, uid 1000) |
 | Health check | HTTP GET `localhost:8080` every 30s |
@@ -178,17 +178,21 @@ Default credentials: `ADMIN` / `ADMIN`
 
 ### Build and Push
 
-Builds for `linux/amd64` and `linux/arm64`, pushes to Docker Hub, and updates the Docker Hub overview in one step:
+Builds for `linux/amd64` and `linux/arm64`, pushes both the versioned tag and `latest` to Docker Hub, and updates the Docker Hub overview in one step:
 
 ```bash
 cd build/docker
-./build-and-push.sh faircomteam/edge latest
+./build-and-push.sh faircomteam/edge
 ```
+
+This auto-detects the version from the tarball filename and pushes two tags, e.g.:
+- `faircomteam/edge:5.1.0.84.260213`
+- `faircomteam/edge:latest`
 
 To also run Docker Scout vulnerability scan after push:
 
 ```bash
-./build-and-push.sh faircomteam/edge latest --scout
+./build-and-push.sh faircomteam/edge --scout
 ```
 
 ### Local Build

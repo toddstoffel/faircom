@@ -18,7 +18,7 @@ RUN set -eux; \
     rm -f FairCom-Edge.linux.*.tar
 
 # Final minimal image
-FROM debian:12-slim
+FROM debian:stable-slim
 
 # OCI image specification labels for traceability, SBOM, and vulnerability scanning
 ARG VERSION=latest
