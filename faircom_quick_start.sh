@@ -23,10 +23,30 @@ BCYAN='\033[1;36m'
 BGREEN='\033[1;32m'
 
 start_container() {
-    # Check if container already exists
+    # If container already exists, handle gracefully based on its state
     if docker ps -a --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
-        echo "Container '${CONTAINER_NAME}' already exists. Use 'restart' to restart it."
-        exit 1
+        if docker ps --format '{{.Names}}' | grep -q "^${CONTAINER_NAME}$"; then
+            printf "${BGREEN}[ok]${RESET} FairCom Edge is already running.\n"
+            printf "\n"
+            printf "Web Interface:     http://localhost:${PORT_HTTP}\n"
+            printf "REST API:          http://localhost:${PORT_HTTP}/api\n"
+            printf "SQL Connection:    localhost:${PORT_DB}\n"
+            printf "\n"
+            printf "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}\n"
+            printf "\n"
+        else
+            printf "${BYELLOW}[warn]${RESET} Container exists but is stopped. Starting it...\n"
+            docker start "${CONTAINER_NAME}" > /dev/null
+            printf "${BGREEN}[ok]${RESET} FairCom Edge started.\n"
+            printf "\n"
+            printf "Web Interface:     http://localhost:${PORT_HTTP}\n"
+            printf "REST API:          http://localhost:${PORT_HTTP}/api\n"
+            printf "SQL Connection:    localhost:${PORT_DB}\n"
+            printf "\n"
+            printf "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}\n"
+            printf "\n"
+        fi
+        return
     fi
 
     printf "\n"

@@ -28,11 +28,32 @@ $BCYAN    = "$ESC[1;36m"
 $BGREEN   = "$ESC[1;32m"
 
 function Start-Container {
-    # Check if container already exists
+    # If container already exists, handle gracefully based on its state
     $existingContainer = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
     if ($existingContainer) {
-        Write-Host "Container '$CONTAINER_NAME' already exists. Use 'restart' to restart it."
-        exit 1
+        $runningContainer = docker ps --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
+        if ($runningContainer) {
+            Write-Host "${BGREEN}[ok]${RESET} FairCom Edge is already running."
+            Write-Host ""
+            Write-Host "Web Interface:     http://localhost:$PORT_HTTP"
+            Write-Host "REST API:          http://localhost:$PORT_HTTP/api"
+            Write-Host "SQL Connection:    localhost:$PORT_DB"
+            Write-Host ""
+            Write-Host "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}"
+            Write-Host ""
+        } else {
+            Write-Host "${BYELLOW}[warn]${RESET} Container exists but is stopped. Starting it..."
+            docker start $CONTAINER_NAME | Out-Null
+            Write-Host "${BGREEN}[ok]${RESET} FairCom Edge started."
+            Write-Host ""
+            Write-Host "Web Interface:     http://localhost:$PORT_HTTP"
+            Write-Host "REST API:          http://localhost:$PORT_HTTP/api"
+            Write-Host "SQL Connection:    localhost:$PORT_DB"
+            Write-Host ""
+            Write-Host "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}"
+            Write-Host ""
+        }
+        return
     }
 
     Write-Host ""
