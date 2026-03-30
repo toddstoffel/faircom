@@ -15,6 +15,22 @@ PORT_MQTT="1883"
 PORT_DB="6597"
 
 start_container() {
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo " FairCom Edge — Evaluation Build"
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
+    echo " ⚠  EVALUATION LICENSE — 3-HOUR RUNTIME LIMIT"
+    echo "    This build will automatically stop after 3 hours. Restart the container"
+    echo "    to resume. For production use, contact FairCom for a full license."
+    echo ""
+    echo " 📄 License agreement:"
+    echo "    https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf"
+    echo ""
+    echo "    By starting this container you agree to the terms of that license."
+    echo ""
+    echo "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    echo ""
     echo "Starting FairCom Edge container..."
     
     # Check if container already exists
