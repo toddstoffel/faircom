@@ -75,6 +75,10 @@ RUN find /opt/faircom/server/web/apps/MQExplorer -type f \( -name "*.js" -o -nam
                  -e "s/'wss'/'ws'/g" \
                  -e 's/wss:\/\//ws:\/\//g' {} +
 
+# Copy entrypoint script
+COPY --chown=faircom:faircom docker/entrypoint.sh /opt/faircom/entrypoint.sh
+RUN chmod +x /opt/faircom/entrypoint.sh
+
 # Set library path for FairCom libraries
 ENV LD_LIBRARY_PATH=/opt/faircom/server
 
@@ -93,4 +97,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 
 # Start the server
 WORKDIR /opt/faircom/server
+ENTRYPOINT ["/opt/faircom/entrypoint.sh"]
 CMD ["./faircom"]
