@@ -72,7 +72,7 @@ The image includes a built-in `HEALTHCHECK` on port 8080. Use `condition: servic
 ```yaml
 services:
   faircom-edge:
-    image: toddstoffel0810/faircom:latest
+    image: faircomteam/edge:latest
     container_name: faircom-edge
     restart: unless-stopped
     ports:
@@ -103,7 +103,7 @@ docker run -d \
   -p 9001:9001 \
   -p 1883:1883 \
   -p 6597:6597 \
-  toddstoffel0810/faircom:latest
+  faircomteam/edge:latest
 ```
 
 ### Data Persistence
@@ -115,7 +115,7 @@ docker run -d \
   --name faircom-edge \
   -p 8080:8080 -p 9001:9001 -p 1883:1883 -p 6597:6597 \
   -v faircom-data:/opt/faircom/data \
-  toddstoffel0810/faircom:latest
+  faircomteam/edge:latest
 ```
 
 ## Access
@@ -179,28 +179,28 @@ Builds for `linux/amd64` and `linux/arm64`, pushes to Docker Hub, and updates th
 
 ```bash
 cd build/docker
-./build-and-push.sh toddstoffel0810/faircom latest
+./build-and-push.sh faircomteam/edge latest
 ```
 
 ### Local Build
 
 ```bash
 cd build/docker
-./build-local.sh toddstoffel0810/faircom latest
+./build-local.sh faircomteam/edge latest
 ```
 
 ### Update Docker Hub Overview Only
 
 ```bash
 cd build/docker
-./build-and-push.sh toddstoffel0810/faircom --readme-only
+./build-and-push.sh faircomteam/edge --readme-only
 ```
 
 ---
 
 ## Support
 
-- Docker Hub: <https://hub.docker.com/r/toddstoffel0810/faircom>
+- Docker Hub: <https://hub.docker.com/r/faircomteam/edge>
 - FairCom Documentation: <https://docs.faircom.com>
 
 ## License

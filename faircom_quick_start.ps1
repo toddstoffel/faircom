@@ -10,7 +10,7 @@ param(
 $ErrorActionPreference = 'Stop'
 
 $CONTAINER_NAME = "faircom-edge"
-$IMAGE = "toddstoffel0810/faircom:latest"
+$IMAGE = "faircomteam/edge:latest"
 
 # Ports
 $PORT_HTTP = "8080"

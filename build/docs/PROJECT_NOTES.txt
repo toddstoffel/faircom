@@ -8,7 +8,7 @@ This project creates a minimal multi-architecture Docker image for FairCom Edge
 database configured for non-SSL deployments. The image is 350MB (30% under the
 500MB target) and supports both linux/amd64 and linux/arm64 platforms.
 
-Docker Hub: toddstoffel0810/faircom:latest
+Docker Hub: faircomteam/edge:latest
 
 
 DIRECTORY STRUCTURE
@@ -80,13 +80,13 @@ BUILD COMMANDS
 
 Quick build and push:
   cd /Users/todd.stoffel/Desktop/tiny\ docker
-  ./docker/build-and-push.sh toddstoffel0810/faircom latest
+  ./docker/build-and-push.sh faircomteam/edge latest
 
 Manual multi-arch build:
   docker buildx build \
     --platform linux/amd64,linux/arm64 \
     -f docker/Dockerfile \
-    -t toddstoffel0810/faircom:latest \
+    -t faircomteam/edge:latest \
     --push \
     .
 
@@ -100,7 +100,7 @@ RUNNING THE CONTAINER
 Start container:
   docker run -d --name faircom-edge \
     -p 8080:8080 -p 9001:9001 -p 1883:1883 -p 6597:6597 \
-    toddstoffel0810/faircom:latest
+    faircomteam/edge:latest
 
 Access web apps:
   http://localhost:8080/apps/MQExplorer/
@@ -150,6 +150,6 @@ VERSION INFORMATION
 FairCom Edge:    v4.2.3.174.250513
 Base Image:      debian:12-slim
 Build Date:      November 14, 2025
-Docker Hub:      toddstoffel0810/faircom:latest
+Docker Hub:      faircomteam/edge:latest
 
 ================================================================================
