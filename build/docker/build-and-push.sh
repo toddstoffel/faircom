@@ -50,12 +50,12 @@ push_readme() {
     echo ""
     echo "Pushing README to Docker Hub..."
 
-    # Derive username from repo argument (e.g. "myuser/myrepo" -> "myuser")
-    DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-${REPO%%/*}}"
-
-    # Retrieve token from Docker credential store if not set
-    if [ -z "$DOCKERHUB_TOKEN" ]; then
-        DOCKERHUB_TOKEN=$(echo "https://index.docker.io/v1/" | docker-credential-osxkeychain get 2>/dev/null | python3 -c 'import json,sys; print(json.load(sys.stdin)["Secret"])' 2>/dev/null || true)
+    # Retrieve credentials from Docker credential store if not set
+    if [ -z "$DOCKERHUB_USERNAME" ] || [ -z "$DOCKERHUB_TOKEN" ]; then
+        local creds
+        creds=$(echo "https://index.docker.io/v1/" | docker-credential-osxkeychain get 2>/dev/null || true)
+        DOCKERHUB_USERNAME="${DOCKERHUB_USERNAME:-$(echo "$creds" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Username"])' 2>/dev/null || true)}"
+        DOCKERHUB_TOKEN="${DOCKERHUB_TOKEN:-$(echo "$creds" | python3 -c 'import json,sys; print(json.load(sys.stdin)["Secret"])' 2>/dev/null || true)}"
     fi
 
     if [ -z "$DOCKERHUB_TOKEN" ]; then
