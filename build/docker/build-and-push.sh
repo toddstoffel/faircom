@@ -77,7 +77,10 @@ push_readme() {
         "https://hub.docker.com/v2/repositories/${REPO}/" \
         -H "Authorization: Bearer ${TOKEN}" \
         -H "Content-Type: application/json" \
-        --data-binary "{\"full_description\": $(cat "$readme_path" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')}")
+        --data-binary "{
+            \"description\": \"Multi-architecture Docker image for FairCom Edge IoT hub (~350MB) · linux/amd64 and linux/arm64\",
+            \"full_description\": $(cat "$readme_path" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
+        }")
 
     if [ "$HTTP_STATUS" = "200" ]; then
         echo "✅ Successfully updated README for ${REPO}"
