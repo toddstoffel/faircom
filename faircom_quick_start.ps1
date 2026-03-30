@@ -18,6 +18,16 @@ $PORT_MQTT_WS = "9001"
 $PORT_MQTT = "1883"
 $PORT_DB = "6597"
 
+# Terminal formatting (ANSI + OSC 8 hyperlinks — supported by Windows Terminal)
+$ESC = [char]27
+$RESET    = "$ESC[0m"
+$BOLD     = "$ESC[1m"
+$BWHITE   = "$ESC[1;37m"
+$BYELLOW  = "$ESC[1;33m"
+$BCYAN    = "$ESC[1;36m"
+$BGREEN   = "$ESC[1;32m"
+function Format-Link { param([string]$url, [string]$text) "$ESC]8;;$url$ESC\$text$ESC]8;;$ESC\" }
+
 function Start-Container {
     # Check if container already exists
     $existingContainer = docker ps -a --format '{{.Names}}' | Where-Object { $_ -eq $CONTAINER_NAME }
@@ -30,21 +40,25 @@ function Start-Container {
     Write-Host "Pulling FairCom Edge image..."
     docker pull $IMAGE
 
+    $LICENSE_URL = "https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf"
+    $WEB_URL     = "http://localhost:$PORT_HTTP"
+    $API_URL     = "http://localhost:$PORT_HTTP/api"
+
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
-    Write-Host " FairCom Edge — Evaluation Build"
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    Write-Host "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
+    Write-Host "${BWHITE} FairCom Edge — Evaluation Build${RESET}"
+    Write-Host "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
     Write-Host ""
-    Write-Host " [warn] Evaluation license — 3-hour runtime limit" -ForegroundColor Yellow
+    Write-Host " ${BYELLOW}[warn]${RESET} Evaluation license — 3-hour runtime limit"
     Write-Host "    This build will automatically stop after 3 hours. Restart the container"
     Write-Host "    to resume. For production use, contact FairCom for a full license."
     Write-Host ""
-    Write-Host " [info] License agreement:"
-    Write-Host "    https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf"
+    Write-Host " ${BCYAN}[info]${RESET} License agreement:"
+    Write-Host "    $(Format-Link $LICENSE_URL $LICENSE_URL)"
     Write-Host ""
     Write-Host "    By starting this container you agree to the terms of that license."
     Write-Host ""
-    Write-Host "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━"
+    Write-Host "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
     Write-Host ""
 
     docker run -d `
@@ -56,13 +70,13 @@ function Start-Container {
         --restart unless-stopped `
         $IMAGE | Out-Null
 
-    Write-Host "[ok] FairCom Edge started successfully!"
+    Write-Host "${BGREEN}[ok]${RESET} FairCom Edge started successfully!"
     Write-Host ""
-    Write-Host "Web Interface:     http://localhost:$PORT_HTTP"
-    Write-Host "REST API:          http://localhost:$PORT_HTTP/api"
+    Write-Host "Web Interface:     $(Format-Link $WEB_URL $WEB_URL)"
+    Write-Host "REST API:          $(Format-Link $API_URL $API_URL)"
     Write-Host "SQL Connection:    localhost:$PORT_DB"
     Write-Host ""
-    Write-Host "Default credentials: ADMIN/ADMIN"
+    Write-Host "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}"
     Write-Host ""
 }
 
@@ -72,7 +86,7 @@ function Stop-Container {
     try {
         docker stop $CONTAINER_NAME 2>$null
         docker rm $CONTAINER_NAME 2>$null
-        Write-Host "[ok] Container stopped and removed."
+        Write-Host "${BGREEN}[ok]${RESET} Container stopped and removed."
     }
     catch {
         Write-Host "Container '$CONTAINER_NAME' is not running." -ForegroundColor Yellow
