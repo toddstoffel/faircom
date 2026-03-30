@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build FairCom Edge Docker image locally (no push to Docker Hub)
-# Usage: ./build-local.sh <dockerhub-username/repo-name> [tag] [platform] [--no-scout]
+# Usage: ./build-local.sh <dockerhub-username/repo-name> [tag] [platform] [--scout]
 
 set -e
 
@@ -19,11 +19,11 @@ REPO=$1
 TAG=${2:-latest}
 PLATFORM=${3:-linux/amd64}
 FULL_IMAGE="${REPO}:${TAG}"
-SCOUT=true
+SCOUT=false
 
 for arg in "$@"; do
     case "$arg" in
-        --no-scout) SCOUT=false ;;
+        --scout) SCOUT=true ;;
     esac
 done
 

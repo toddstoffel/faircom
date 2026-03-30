@@ -182,6 +182,12 @@ cd build/docker
 ./build-and-push.sh faircomteam/edge latest
 ```
 
+To also run Docker Scout vulnerability scan after push:
+
+```bash
+./build-and-push.sh faircomteam/edge latest --scout
+```
+
 ### Local Build
 
 ```bash

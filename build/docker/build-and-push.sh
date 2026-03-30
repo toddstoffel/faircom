@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Build and push FairCom Edge Docker image
-# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [tag] [--local|--readme-only|--no-scout]
+# Usage: ./build-and-push.sh <dockerhub-username/repo-name> [tag] [--local|--readme-only|--scout]
 #
 # Credentials for README push (only used when not --local):
 #   DOCKERHUB_USERNAME  - Docker Hub username
@@ -10,13 +10,13 @@
 set -e
 
 if [ -z "$1" ]; then
-    echo "Usage: $0 <dockerhub-username/repo-name> [tag] [--local|--readme-only|--no-scout]"
+    echo "Usage: $0 <dockerhub-username/repo-name> [tag] [--local|--readme-only|--scout]"
     echo "Example: $0 myusername/faircom-edge latest"
     echo ""
     echo "Options:"
     echo "  --local        Build locally without pushing to Docker Hub"
     echo "  --readme-only  Only push README to Docker Hub (skip image build)"
-    echo "  --no-scout     Skip Docker Scout vulnerability scan after push"
+    echo "  --scout        Run Docker Scout vulnerability scan after push"
     exit 1
 fi
 
@@ -25,14 +25,14 @@ TAG=${2:-latest}
 FULL_IMAGE="${REPO}:${TAG}"
 LOCAL_ONLY=false
 README_ONLY=false
-SCOUT=true
+SCOUT=false
 
 # Check for flags
 for arg in "$@"; do
     case "$arg" in
         --local) LOCAL_ONLY=true ;;
         --readme-only) README_ONLY=true ;;
-        --no-scout) SCOUT=false ;;
+        --scout) SCOUT=true ;;
     esac
 done
 
