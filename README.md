@@ -2,7 +2,7 @@
 <a href="https://www.faircom.com"><img src="https://raw.githubusercontent.com/toddstoffel/faircom/main/assets/faircom-logo.svg" alt="FairCom" height="56"></a>
 <br><br>
 <strong>FairCom Edge Docker</strong><br>
-Multi-architecture Docker image for <a href="https://www.faircom.com/products/faircom-edge">FairCom Edge</a> (~350MB) targeting <code>linux/amd64</code> and <code>linux/arm64</code>.
+Multi-architecture Docker image for <a href="https://www.faircom.com/products/faircom-edge">FairCom Edge</a> (~400MB) targeting <code>linux/amd64</code> and <code>linux/arm64</code>.
 </p>
 
 ---

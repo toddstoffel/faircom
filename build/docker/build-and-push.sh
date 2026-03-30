@@ -78,7 +78,7 @@ push_readme() {
         -H "Authorization: Bearer ${TOKEN}" \
         -H "Content-Type: application/json" \
         --data-binary "{
-            \"description\": \"Multi-architecture Docker image for FairCom Edge IoT hub (~350MB) · linux/amd64 and linux/arm64\",
+            \"description\": \"Multi-architecture Docker image for FairCom Edge IoT hub (~400MB) · linux/amd64 and linux/arm64\",
             \"full_description\": $(cat "$readme_path" | python3 -c 'import json,sys; print(json.dumps(sys.stdin.read()))')
         }")
 
