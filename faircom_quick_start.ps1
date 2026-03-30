@@ -18,7 +18,7 @@ $PORT_MQTT_WS = "9001"
 $PORT_MQTT = "1883"
 $PORT_DB = "6597"
 
-# Terminal formatting (ANSI + OSC 8 hyperlinks — supported by Windows Terminal)
+# Terminal formatting (ANSI — supported by Windows Terminal)
 $ESC = [char]27
 $RESET    = "$ESC[0m"
 $BOLD     = "$ESC[1m"
@@ -26,7 +26,6 @@ $BWHITE   = "$ESC[1;37m"
 $BYELLOW  = "$ESC[1;33m"
 $BCYAN    = "$ESC[1;36m"
 $BGREEN   = "$ESC[1;32m"
-function Format-Link { param([string]$url, [string]$text) "$ESC]8;;$url$ESC\$text$ESC]8;;$ESC\" }
 
 function Start-Container {
     # Check if container already exists
@@ -54,7 +53,7 @@ function Start-Container {
     Write-Host "    to resume. For production use, contact FairCom for a full license."
     Write-Host ""
     Write-Host " ${BCYAN}[info]${RESET} License agreement:"
-    Write-Host "    $(Format-Link $LICENSE_URL $LICENSE_URL)"
+    Write-Host "    $LICENSE_URL"
     Write-Host ""
     Write-Host "    By starting this container you agree to the terms of that license."
     Write-Host ""
@@ -72,9 +71,8 @@ function Start-Container {
 
     Write-Host "${BGREEN}[ok]${RESET} FairCom Edge started successfully!"
     Write-Host ""
-    Write-Host "Web Interface:     $(Format-Link $WEB_URL $WEB_URL)"
-    Write-Host "REST API:          $(Format-Link $API_URL $API_URL)"
-    Write-Host "SQL Connection:    localhost:$PORT_DB"
+    Write-Host "Web Interface:     $WEB_URL"
+    Write-Host "REST API:          $API_URL"    Write-Host "SQL Connection:    localhost:$PORT_DB"
     Write-Host ""
     Write-Host "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}"
     Write-Host ""

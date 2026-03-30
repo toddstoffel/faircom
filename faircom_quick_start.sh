@@ -21,9 +21,6 @@ BWHITE='\033[1;37m'
 BYELLOW='\033[1;33m'
 BCYAN='\033[1;36m'
 BGREEN='\033[1;32m'
-DIM='\033[2m'
-# OSC 8 hyperlink: link <url> <display text>
-link() { printf '\033]8;;%s\033\\%s\033]8;;\033\\' "$1" "$2"; }
 
 start_container() {
     # Check if container already exists
@@ -39,7 +36,6 @@ start_container() {
     local LICENSE_URL="https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf"
     local WEB_URL="http://localhost:${PORT_HTTP}"
     local API_URL="http://localhost:${PORT_HTTP}/api"
-
     printf "\n"
     printf "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
     printf "${BWHITE} FairCom Edge — Evaluation Build${RESET}\n"
@@ -50,7 +46,7 @@ start_container() {
     printf "    to resume. For production use, contact FairCom for a full license.\n"
     printf "\n"
     printf " ${BCYAN}[info]${RESET} License agreement:\n"
-    printf "    %s\n" "$(link "${LICENSE_URL}" "${LICENSE_URL}")"
+    printf "    %s\n" "${LICENSE_URL}"
     printf "\n"
     printf "    By starting this container you agree to the terms of that license.\n"
     printf "\n"
@@ -68,8 +64,8 @@ start_container() {
 
     printf "${BGREEN}[ok]${RESET} FairCom Edge started successfully!\n"
     printf "\n"
-    printf "Web Interface:     %s\n" "$(link "${WEB_URL}" "${WEB_URL}")"
-    printf "REST API:          %s\n" "$(link "${API_URL}" "${API_URL}")"
+    printf "Web Interface:     %s\n" "${WEB_URL}"
+    printf "REST API:          %s\n" "${API_URL}"
     printf "SQL Connection:    localhost:${PORT_DB}\n"
     printf "\n"
     printf "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}\n"
