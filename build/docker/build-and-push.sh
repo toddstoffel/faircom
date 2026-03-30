@@ -145,6 +145,8 @@ else
         --build-arg VERSION="${TAG}" \
         --build-arg BUILD_DATE="${BUILD_DATE}" \
         --build-arg VCS_REF="${VCS_REF}" \
+        --sbom=true \
+        --provenance=mode=max \
         --push \
         -f docker/Dockerfile \
         .
