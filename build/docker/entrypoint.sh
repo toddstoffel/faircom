@@ -8,23 +8,31 @@
 #   e.g.    docker run -it faircomteam/edge bash
 
 LOG_FILE="/opt/faircom/data/CTSTATUS.FCS"
+LICENSE_URL="https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf"
 
-cat <<'BANNER'
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- FairCom Edge
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# ANSI formatting
+RESET='\033[0m'
+BOLD='\033[1m'
+BWHITE='\033[1;37m'
+BCYAN='\033[1;36m'
+BGREEN='\033[1;32m'
 
- [info] This image ships with an evaluation license (3-hour runtime limit).
-    Restart the container to resume. To remove this limit, bind-mount a
-    production license file to /opt/faircom/server/ctsrvr.lic
-
- [info] License agreement:
-    https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf
-
-    By starting this container you agree to the terms of that license.
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-BANNER
+printf "\n"
+printf "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
+printf "${BWHITE} FairCom Edge${RESET}\n"
+printf "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
+printf "\n"
+printf " ${BCYAN}[info]${RESET} This image ships with an evaluation license (3-hour runtime limit).\n"
+printf "    Restart the container to resume. To remove this limit, bind-mount a\n"
+printf "    production license file to /opt/faircom/server/ctsrvr.lic\n"
+printf "\n"
+printf " ${BCYAN}[info]${RESET} License agreement:\n"
+printf "    %s\n" "${LICENSE_URL}"
+printf "\n"
+printf "    By starting this container you agree to the terms of that license.\n"
+printf "\n"
+printf "${BWHITE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}\n"
+printf "\n"
 
 # ── User-supplied command override ──────────────────────────────────────────
 # Anything other than the default server binary gets exec'd directly.
@@ -50,6 +58,16 @@ if [ -f "$LOG_FILE" ]; then
     tail -f "$LOG_FILE" &
     TAIL_PID=$!
 fi
+
+printf "\n"
+printf "${BGREEN}[ok]${RESET} FairCom Edge started successfully!\n"
+printf "\n"
+printf "Web Interface:     http://localhost:8080\n"
+printf "REST API:          http://localhost:8080/api\n"
+printf "SQL Connection:    localhost:6597\n"
+printf "\n"
+printf "Default credentials: ${BOLD}ADMIN/ADMIN${RESET}\n"
+printf "\n"
 
 # Block until the server exits (crash, shutdown, or 3-hour eval timeout).
 # If a trapped signal interrupts wait, re-wait so we get the real exit code.
