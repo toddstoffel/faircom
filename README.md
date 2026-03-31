@@ -21,8 +21,8 @@ FairCom Edge is an IoT hub designed to run on the edge, from factory floors to w
 - JSON-based configuration, no specialized coding required
 - Cloud publishing to analytics and ML platforms
 
-> **Evaluation License — 3-hour runtime limit**
-> This image contains an evaluation build of FairCom Edge. The server will automatically stop after 3 hours; restart the container to resume. By pulling or running this image you agree to the [FairCom Edge Developer License Agreement](https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf). For production licensing, contact [FairCom](https://www.faircom.com).
+> **Evaluation License**
+> This image ships with an evaluation license that limits runtime to 3 hours. Restart the container to resume, or bind-mount a production license file to remove the limit. By pulling or running this image you agree to the [FairCom Edge Developer License Agreement](https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf). For production licensing, contact [FairCom](https://www.faircom.com).
 
 ## Using the Image
 
@@ -220,7 +220,7 @@ cd build/docker
 
 FairCom Edge is commercial software. This image packages FairCom Edge v5.1.0.84.
 
-The evaluation build has a 3-hour runtime limit and needs to be restarted after that period.
+This image ships with an evaluation license (3-hour runtime limit). To remove the limit, bind-mount a production license file to `/opt/faircom/server/ctsrvr.lic`.
 
 By downloading or using this image you agree to the [FairCom Edge Developer License Agreement](https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf).
 

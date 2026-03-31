@@ -11,12 +11,12 @@ LOG_FILE="/opt/faircom/data/CTSTATUS.FCS"
 
 cat <<'BANNER'
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
- FairCom Edge — Evaluation Build
+ FairCom Edge
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
- [warn] Evaluation license — 3-hour runtime limit
-    This build will automatically stop after 3 hours. Restart the container
-    to resume. For production use, contact FairCom for a full license.
+ [info] This image ships with an evaluation license (3-hour runtime limit).
+    Restart the container to resume. To remove this limit, bind-mount a
+    production license file to /opt/faircom/server/ctsrvr.lic
 
  [info] License agreement:
     https://552967.fs1.hubspotusercontent-na1.net/hubfs/552967/V5_FairCom_Edge_Dev_260212.pdf
