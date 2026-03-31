@@ -101,5 +101,8 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
 
 # Start the server
 WORKDIR /opt/faircom/server
+
+# Default: print banner then start the FairCom server in the foreground.
+# Users can override the command (e.g. "docker run faircomteam/edge bash").
 ENTRYPOINT ["/opt/faircom/entrypoint.sh"]
 CMD ["./faircom"]
